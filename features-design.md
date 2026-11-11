@@ -12,7 +12,7 @@ CTH-TAK12-EDUHUB
 
 | Mã mục | Ai đồng ý | Loại | Ghi khi |
 | --- | --- | --- | --- |
-| `guardian_required` | Cha mẹ | Bắt buộc | Luồng 2 (trang xác nhận), luồng 3 (form), luồng 4 (`sourceApp = eduhub`), TAK12-21 |
+| `guardian_required` | Cha mẹ | Bắt buộc | Luồng 2 (trang xác nhận), luồng 3 (form), luồng 4 (`sourceApp = eduhub`) |
 | `guardian_optional` | Cha mẹ | Tuỳ chọn | Như trên. Từ chối cũng ghi một dòng |
 | `child_required` | Con, từ 7 tuổi | Bắt buộc | Màn con tự xác nhận, form tự đăng ký ≥ 16 |
 | `child_optional` | Con, từ 7 tuổi | Tuỳ chọn | Như trên |
