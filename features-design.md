@@ -8,9 +8,7 @@ CTH-TAK12-EDUHUB
 | 7–15 tuổi | 2012 – 2019 | Bắt buộc | `pending` → `agreed` hoặc `ask_guardian`. Màn lời lẽ dễ hiểu ở lần đăng nhập đầu |
 | ≥ 16 tuổi | 2011 trở về trước | Không | `pending` → con tự quyết. Chưa xác nhận thì chưa được học |
 
-- **Test bắt buộc**Năm 2026: người sinh 2012 là 15 tuổi (cần cha mẹ), người sinh 2011 là 16 tuổi (tự quyết). Lấy đúng ví dụ ở §11.3 làm test.
-- **Hai đường POST**`RegisterForm.jsx` và `views/AgentRegister` cùng gọi `Account/Register`. Luồng Đại sứ (người lớn) rơi vào bậc ≥ 16.
-
+**form code: Mã mục link sang EduHUB**
 
 | Mã mục | Ai đồng ý | Loại | Ghi khi |
 | --- | --- | --- | --- |
@@ -19,14 +17,6 @@ CTH-TAK12-EDUHUB
 | `child_required` | Con, từ 7 tuổi | Bắt buộc | Màn con tự xác nhận, form tự đăng ký ≥ 16 |
 | `child_optional` | Con, từ 7 tuổi | Tuỳ chọn | Như trên |
 
-- **Mỗi dòng**`subject, code, decision, policyVersion, decidedAt, sourceApp (eduhub | tak12)`.
-- **Lưu văn bản**Khuôn `ConsentTexts` (văn bản + hash SHA-256) của DocumentForms vẫn dùng được để lưu câu chữ. Nó không thay được danh mục 4 mục. Vướng tenant vẫn còn: nên tạo bảng host-level riêng.
-
-**Đồng ý cho con có TK và học (A)**Lưu ở kho đồng ý của TAK12, gồm 4 mục. Có thể đến từ trang xác nhận của TAK12 hoặc từ EduHUB (TAK12-4, TAK12-21).
-
-**Liên kết PH–HS**Chỉ EduHUB ghi (`family.guardianship`). `GuardianLinks` ở TAK12 là bản sao do TAK12-21 ghi. Hợp đồng này **đã chạy**.
-
-**Vai trò parent / student (mới, R11/R14)**Mỗi `sub` phải khớp vai trò ở hai bên: guardian EduHUB tương ứng `parent`, `learner_account` tương ứng `student`. Mọi đường tạo vai trò phải báo cho bên kia. Khi vai trò lệch thì cảnh báo, không tự sửa. Đổi lại, EduHUB không phải hỏi phụ huynh “TK này đang được ai dùng?” nữa.
 
 ## Diagram
 
