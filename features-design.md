@@ -88,9 +88,9 @@ stateDiagram-v2
   
 ```
 
-- **Chặn học**HS dưới 16 tuổi chỉ học được khi đã có đồng ý của cha mẹ. Khi con mất liên kết `active` cuối cùng có kèm đồng ý, TAK12 chặn học.
+- **Chặn học**: HS dưới 16 tuổi chỉ học được khi đã có đồng ý của cha mẹ. Khi con mất liên kết `active` cuối cùng có kèm đồng ý, TAK12 chặn học.
 - **Con ≥ 7 vẫn tự xác nhận**Kể cả khi cha mẹ đã đồng ý trên EduHUB. Chỉ bỏ được phần đồng ý của cha mẹ, không bỏ được phần của con.
-- **TK cũ**Không backfill đồng ý. Riêng vai trò thì có script backfill chạy một lần (§10.4).
+- **TK cũ**: Không backfill đồng ý. Riêng vai trò thì có script backfill chạy một lần (§10.4).
 
 ## HS tự đăng ký, từ 16 tuổi
 
@@ -120,8 +120,8 @@ sequenceDiagram
   
 ```
 
-- **Chưa tick mục bắt buộc**TK vẫn được tạo nhưng `selfConsent = pending`: chưa được học, lần đăng nhập sau sẽ hỏi lại.
-- **Keycloak lỗi**Nếu `IsSignedIn=false` thì bỏ qua bước OTP và rơi về banner nhắc.
+- **Chưa tick mục bắt buộc**: TK vẫn được tạo nhưng `selfConsent = pending`: chưa được học, lần đăng nhập sau sẽ hỏi lại.
+- **Keycloak lỗi**: Nếu `IsSignedIn=false` thì bỏ qua bước OTP và rơi về banner nhắc.
 
 ## HS tự đăng ký, từ 15 tuổi trở xuống (US04)
 
@@ -163,8 +163,8 @@ sequenceDiagram
 ```
 
 - **Xác thực theo kênh**`phoneVerified`/`emailVerified` chỉ là `true` khi đúng kênh đó được xác thực. Một link dùng chung cho cả hai kênh thì cả hai đều là `false`. Gửi mã cho cha mẹ rồi để HS nhập hộ thì SĐT đó cũng **không** được tính là đã xác thực.
-- **Giữ nguyên từ kế hoạch**Token dạng HMAC + hạn + base64url, so sánh bằng `FixedTimeEquals`. Không truyền `?id=` trần. Trang theo khuôn `ActiveAccount`. Không dùng `EduHubControllerBase`.
-- **Nút «Vào EduHUB»** Mở `{PUBLIC_APP_URL}/#dang-nhap`. Không tự đặt ra đường dẫn khác.
+- **Giữ nguyên từ kế hoạch**: Token dạng HMAC + hạn + base64url, so sánh bằng `FixedTimeEquals`. Không truyền `?id=` trần. Trang theo khuôn `ActiveAccount`. Không dùng `EduHubControllerBase`.
+- **Nút «Vào EduHUB»**: Mở `{PUBLIC_APP_URL}/#dang-nhap`. Không tự đặt ra đường dẫn khác.
 
 ## PH điền form “Cho con” trên TAK12
 
@@ -200,9 +200,9 @@ sequenceDiagram
   
 ```
 
-- **Tách mật khẩu**Nếu dùng chung một mật khẩu, con vào được TK của cha mẹ, đổi lựa chọn dữ liệu và gỡ liên kết.
-- **Job bền**Tham số job **chỉ là ID người dùng**. Payload được dựng lúc job chạy. Thử lại với backoff, tối đa 24 giờ. Enqueue lại khi PH xác thực SĐT/email sau lần đẩy đầu.
-- **Con từ 7 tuổi**Vẫn phải qua màn tự xác nhận ở lần đăng nhập đầu.
+- **Tách mật khẩu**: Nếu dùng chung một mật khẩu, con vào được TK của cha mẹ, đổi lựa chọn dữ liệu và gỡ liên kết.
+- **Job bền**: Tham số job **chỉ là ID người dùng**. Payload được dựng lúc job chạy. Thử lại với backoff, tối đa 24 giờ. Enqueue lại khi PH xác thực SĐT/email sau lần đẩy đầu.
+- **Con từ 7 tuổi**: Vẫn phải qua màn tự xác nhận ở lần đăng nhập đầu.
 
 ## PH tạo TK cho con từ EduHUB
 
@@ -255,7 +255,7 @@ sequenceDiagram
   
 ```
 
-- **Khi nào enqueue**Khi con chọn trên màn này, khi TAK12 xác định con cần tự xác nhận, và khi TAK12-21 tạo dòng `GuardianLinks` `active` **đầu tiên** của con.
+- **Khi nào enqueue**: Khi con chọn trên màn này, khi TAK12 xác định con cần tự xác nhận, và khi TAK12-21 tạo dòng `GuardianLinks` `active` **đầu tiên** của con.
 
 ## Liên kết PH–HS
 
@@ -282,5 +282,5 @@ sequenceDiagram
   
 ```
 
-- **Quy tắc**Chỉ EduHUB ghi quan hệ. TAK12 không tự ghi `GuardianLinks`.
-- **revoked**Nếu con dưới 16 tuổi không còn liên kết `active` nào kèm đồng ý, TAK12 chặn học.
+- **Quy tắc**: Chỉ EduHUB ghi quan hệ. TAK12 không tự ghi `GuardianLinks`.
+- **revoked**: Nếu con dưới 16 tuổi không còn liên kết `active` nào kèm đồng ý, TAK12 chặn học.
