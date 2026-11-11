@@ -42,12 +42,12 @@ flowchart LR
   T1 --- KC
   E -. "chỉ token endpoint" .-> KC
   E4 -- "outbox: students, guardian-links, guardians, accounts/search, emails" --> T1
-  E4 -- "PUT guardian-links (TAK12-21)" --> T3
+  E4 -- "PUT guardian-links" --> T3
   T1 -- "learner-api (ĐÃ CHẠY)" --> E4
   T5 -- "POST /v1/product-api/family-registrations" --> E5
   T5 -- "consent (selfConsent, ask_guardian)" --> E5
   T5 -- "TryWriteAdoptedAsync" --> T7
-  E -. "nhờ gửi (TAK12-18)" .-> T9
+  E -. "nhờ gửi" .-> T9
   
 ```
 
@@ -62,10 +62,10 @@ stateDiagram-v2
     state "Không cần (≥ 16)" as NR
     state "Hết hạn hoặc bị từ chối: xoá TK" as X
     [*] --> P: HS tự đăng ký (US04)
-    [*] --> V: PH đăng ký cho con, hoặc TAK12-4
+    [*] --> V: PH đăng ký cho con, hoặc tạo TK cho con từ eduhub
     [*] --> NR: tự đăng ký, ≥ 16
-    P --> V: cha mẹ xác nhận (trong 3 ngày)
-    P --> V: TAK12-21 active kèm consent
+    P --> V: cha mẹ xác nhận (trong 3 ngày - t/đổi trong settings)
+    P --> V: cha mẹ đã liên kết PH-HS qua eduhub
     P --> X: hết hạn hoặc cha mẹ từ chối
   }
   state "Trục 2 · Con tự xác nhận (selfConsent)" as S {
@@ -89,7 +89,7 @@ stateDiagram-v2
 ```
 
 - **Chặn học**HS dưới 16 tuổi chỉ học được khi đã có đồng ý của cha mẹ. Khi con mất liên kết `active` cuối cùng có kèm đồng ý, TAK12 chặn học.
-- **Con ≥ 7 vẫn tự xác nhận**Kể cả khi cha mẹ đã đồng ý trên EduHUB. Chỉ bỏ được phần đồng ý của cha mẹ, không bỏ được phần của con (X7).
+- **Con ≥ 7 vẫn tự xác nhận**Kể cả khi cha mẹ đã đồng ý trên EduHUB. Chỉ bỏ được phần đồng ý của cha mẹ, không bỏ được phần của con.
 - **TK cũ**Không backfill đồng ý. Riêng vai trò thì có script backfill chạy một lần (§10.4).
 
 ## HS tự đăng ký, từ 16 tuổi
@@ -140,7 +140,7 @@ sequenceDiagram
   FE-->>HS: Khối "Xác nhận cho HS là trẻ em" + SĐT/email cha mẹ
   FE->>AC: POST Account/Register
   AC->>KC: Tạo user, VÔ HIỆU (enabled = false)
-  AC->>AC: TK chờ, hạn 3 ngày, ẩn khỏi TAK12-5
+  AC->>AC: TK chờ, hạn 3 ngày
   FE-->>HS: Màn chờ: "Đã gửi cho bố mẹ"
   par Mỗi kênh một token (D4)
     AC->>MSG: Email: link riêng cho kênh email
@@ -152,7 +152,7 @@ sequenceDiagram
   PH->>GP: Xác nhận
   GP->>AC: Ghi đồng ý (sourceApp = tak12), kênh đã mở là verified
   AC->>KC: Bật user HS
-  AC--)PUB: FamilyRegistration và Consent (cần đối chiếu §11 cho US04)
+  AC--)PUB: FamilyRegistration và Consent
   alt HS từ 7 tuổi
     HS->>FE: Đăng nhập lần đầu: màn con tự xác nhận
   end
@@ -164,7 +164,6 @@ sequenceDiagram
 
 - **X6 · Xác thực theo kênh**`phoneVerified`/`emailVerified` chỉ là `true` khi đúng kênh đó được xác thực. Một link dùng chung cho cả hai kênh thì cả hai đều là `false`. Gửi mã cho cha mẹ rồi để HS nhập hộ thì SĐT đó cũng **không** được tính là đã xác thực.
 - **Giữ nguyên từ kế hoạch**Token dạng HMAC + hạn + base64url, so sánh bằng `FixedTimeEquals`. Không truyền `?id=` trần. Trang theo khuôn `ActiveAccount`. Không dùng `EduHubControllerBase`.
-- **Nếu D1 giữ “dùng bình thường”**Phải đưa lại pháp chế và sửa CR-DK-01 §1. Phương án thứ ba: tách “chờ xác thực” (bị chặn) khỏi “đã xác thực nhưng chưa hoàn tất hồ sơ” (không chặn). Phương án này phải được viết thành thiết kế riêng.
 - **Nút «Vào EduHUB»**Mở `{PUBLIC_APP_URL}/#dang-nhap`. Không tự đặt ra đường dẫn khác.
 
 ## PH điền form “Cho con” trên TAK12
@@ -205,14 +204,14 @@ sequenceDiagram
 - **Job bền**Tham số job **chỉ là ID người dùng**. Payload được dựng lúc job chạy. Thử lại với backoff, tối đa 24 giờ. Enqueue lại khi PH xác thực SĐT/email sau lần đẩy đầu.
 - **Con từ 7 tuổi**Vẫn phải qua màn tự xác nhận ở lần đăng nhập đầu.
 
-## PH tạo TK cho con từ EduHUB (TAK12-4)
+## PH tạo TK cho con từ EduHUB
 
 ```mermaid
 sequenceDiagram
   autonumber
   actor PH
   participant E as EduHUB
-  participant T as TAK12-4 /students
+  participant T as /students
   participant KC as Keycloak
   actor HS
   PH->>E: "Tạo TK cho con", đồng ý guardian_*
@@ -250,7 +249,7 @@ sequenceDiagram
   T--)PUB: Enqueue(childUserId)
   PUB->>E: consent
   opt ask_guardian
-    E->>T: Nhờ gửi template EduHub.ChildAskedGuardian (TAK12-18)
+    E->>T: Nhờ gửi template EduHub.ChildAskedGuardian
     T->>PH: Email cho phụ huynh
   end
   
@@ -266,7 +265,7 @@ sequenceDiagram
   actor HS
   participant FA as EduHubFamilyAppService (TAK12)
   participant LA as EduHUB learner-api
-  participant T as TAK12-18 emails
+  participant T as emails
   actor PH
   participant GL as TAK12-21 guardian-links
   HS->>FA: Hồ sơ, "Mời bố mẹ", nhập liên hệ
@@ -283,5 +282,5 @@ sequenceDiagram
   
 ```
 
-- **Quy tắc**Chỉ EduHUB ghi quan hệ (spec 02/11 R7). TAK12 không tự ghi `GuardianLinks`.
+- **Quy tắc**Chỉ EduHUB ghi quan hệ. TAK12 không tự ghi `GuardianLinks`.
 - **revoked**Nếu con dưới 16 tuổi không còn liên kết `active` nào kèm đồng ý, TAK12 chặn học.
