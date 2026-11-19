@@ -68,7 +68,7 @@ sequenceDiagram
     QS->>Pub: PublishQuizAttemptCompletedAsync(attempt) — cùng unit of work
     Pub->>DB: AbpUsers (Guid=CustomerId) → UserMappings → sub (không có sub → bỏ)
     Pub->>DB: EventOutbox: đã có EventId? (UUIDv5 theo attemptId → nộp/dừng lại không phát trùng)
-    Pub->>DB: QuizAttemptQuestions: answeredCount (IsCorrectStatus 0–2, !IsParent); Quizzes: title, IsSpeakingQuiz
+    Pub->>DB: QuizAttemptQuestions: answeredCount (IsCorrectStatus 0–2, !IsParent, Quizzes: title, IsSpeakingQuiz)
     Pub->>DB: INSERT EventOutbox (Subject cth.tak12.pNN.quiz_attempt.completed.v1, Payload CloudEvents, Status=Pending)
     QS->>DB: COMMIT (bài + outbox một transaction)
 
@@ -78,7 +78,7 @@ sequenceDiagram
     Relay->>NATS: PublishAsync + Nats-Msg-Id = EventId
     NATS-->>Relay: ack → UPDATE Status=Sent, SentAt (lỗi: backoff 5s…30m, 10 lần → Dead)
     NATS->>W: durable pull consumer "eduhub"
-    W->>W: validate zod; FamilyFacade.activeChildIdForSub (con không có phụ huynh → ack, bỏ)
+    W->>W: validate zod (FamilyFacade.activeChildIdForSub con không có phụ huynh → ack, bỏ)
     W->>PG: 1 transaction: INSERT learning.event_log (PK source+event_id, trùng → ack) + upsert learning.activity + learning.progress_item
     note over W,PG: Dashboard thấy trong ≤ 60 giây (NFR-DATA-1)
 ```
