@@ -66,9 +66,9 @@ sequenceDiagram
     QS->>DB: QuizAttemptQuestions: chấm từng câu (IsCorrectStatus 0–2, CheckAnswer/CheckRetriedAnswer cập nhật CÙNG dòng khi làm lại)
     QS->>DB: QuizAttempts: AttemptPoint, FinishTimeUtc
     QS->>Pub: PublishQuizAttemptCompletedAsync(attempt) — cùng unit of work
-    Pub->>DB: AbpUsers (Guid=CustomerId) → UserMappings → sub (không có sub → bỏ)
-    Pub->>DB: EventOutbox: đã có EventId? (UUIDv5 theo attemptId → nộp/dừng lại không phát trùng)
-    Pub->>DB: QuizAttemptQuestions: answeredCount (IsCorrectStatus 0–2, !IsParent, Quizzes: title, IsSpeakingQuiz)
+    Pub->>Pub: AbpUsers (Guid=CustomerId) → UserMappings → sub (không có sub → bỏ)
+    Pub->>Pub: EventOutbox: đã có EventId? (UUIDv5 theo attemptId → nộp/dừng lại không phát trùng)
+    Pub->>Pub: QuizAttemptQuestions: answeredCount (IsCorrectStatus 0–2, !IsParent, Quizzes: title, IsSpeakingQuiz)
     Pub->>DB: INSERT EventOutbox (Subject cth.tak12.pNN.quiz_attempt.completed.v1, Payload CloudEvents, Status=Pending)
     QS->>DB: COMMIT (bài + outbox một transaction)
 
