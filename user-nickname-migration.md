@@ -13,7 +13,7 @@ flowchart TD
     P[1. Cha/mẹ submit form Đổi tên thật của con trên EduHub] --> BE[2. EduHub backend]
     BE --> KC[Gọi Keycloak<br/>cập nhật firstName / lastName]
     BE --> TK[Gọi API TAK12<br/>cập nhật Name / Surname]
-    TK --> SN[AbpUsers.Surname / Name được ghi đè<br/>— Nickname đứng yên]
+    TK --> SN[AbpUsers.Surname / Name bị ghi đè<br/>— Nickname không ảnh hưởng]
 
     NK[(AbpUsers.Nickname)] --> UI[TAK12 hiển thị Nickname<br/>Leaderboard / Session / UserDto<br/>EK12 · AdminPanel]
 ```
