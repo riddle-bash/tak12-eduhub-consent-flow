@@ -21,14 +21,11 @@ Thêm cột `AbpUsers.Nickname NVARCHAR(130) NULL`:
 
 ```mermaid
 flowchart TD
-    subgraph EduHub["EduHub / Keycloak"]
-        P[Cha/mẹ đổi tên con trên EduHub] --> KC[Keycloak cập nhật firstName/lastName]
-        KC -->|đồng bộ khi đăng nhập| SN[AbpUsers.Surname / Name bị ghi đè]
-    end
+    P[1. Cha/mẹ submit form Đổi tên con trên EduHub] --> BE[2. EduHub backend gọi TAK12 backend<br/>cập nhật Name / Surname mới]
+    BE --> SN[AbpUsers.Surname / Name được ghi đè<br/>— Nickname đứng yên]
 
-    subgraph TAK12["TAK12"]
-        SN -.->|KHÔNG ảnh hưởng| NK[(AbpUsers.Nickname)]
-        NK --> DN{Nickname có giá trị?}
+    subgraph Display["TAK12 — tên hiển thị (đọc Nickname trước, không phụ thuộc đổi tên ở trên)"]
+        NK[(AbpUsers.Nickname)] --> DN{Nickname có giá trị?}
         DN -->|Có| SHOW[Hiển thị Nickname]
         DN -->|NULL / trống| FB{Surname + Name có giá trị?}
         FB -->|Có| FULL[Hiển thị Surname + Name]
@@ -40,23 +37,13 @@ flowchart TD
 
 ## Luồng migration (script idempotent)
 
+Chạy **một lần** (script vẫn idempotent — lỡ chạy lại chỉ đụng dòng còn NULL, không ghi đè nickname đã đặt):
+
 ```mermaid
 flowchart TD
-    START([Chạy 20261125_AbpUsers_AddNickname.sql]) --> CHK{sys.columns:<br/>AbpUsers.Nickname tồn tại?}
-    CHK -->|Chưa| ADD[ALTER TABLE AbpUsers<br/>ADD Nickname NVARCHAR 130 NULL]
-    CHK -->|Rồi| SKIP[PRINT skip — không đụng cột]
-    ADD --> BF
-    SKIP --> BF
-
-    subgraph Backfill["Backfill theo batch 5000 dòng (tránh giữ lock dài trên AbpUsers)"]
-        BF[UPDATE TOP 5000<br/>SET Nickname = TRIM Surname + ' ' + Name<br/>WHERE Nickname IS NULL<br/>AND tên ghép không rỗng] --> MORE{"@@ROWCOUNT > 0?"}
-        MORE -->|Có| BF
-    end
-
-    MORE -->|Hết| DONE([Hoàn tất])
-
-    NOTE1[/"Tên ghép rỗng → giữ NULL,<br/>KHÔNG chép email vào"/] -.- BF
-    NOTE2[/"Chạy lại: chỉ đụng dòng còn NULL<br/>→ không ghi đè nickname đã đặt"/] -.- BF
+    S1["1. Thêm cột<br/>ALTER TABLE AbpUsers ADD Nickname NVARCHAR 130 NULL<br/>(guard sys.columns — đã có thì bỏ qua)"]
+    S2["2. Backfill một lần<br/>UPDATE AbpUsers SET Nickname = TRIM Surname + ' ' + Name<br/>WHERE Nickname IS NULL<br/>(batch 5000 dòng; tên ghép rỗng → giữ NULL, không chép email)"]
+    S1 --> S2 --> DONE([Hoàn tất])
 ```
 
 ## Các bước triển khai
